@@ -1,0 +1,12 @@
+server:
+    address: 0.0.0.0
+    port: ${PORT:8080}
+
+management:
+   security:
+      enabled: true
+
+auth:
+   internal:
+      user: ${USER:user1}
+      pass: ${PASS:user1Pass}
