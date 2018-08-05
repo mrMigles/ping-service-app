@@ -63,16 +63,16 @@
               <arguments>build</arguments>
             </configuration>
           </execution>
-          <execution>
+          <!--<execution>
             <id>yarn test</id>
             <goals>
               <goal>yarn</goal>
             </goals>
             <phase>test</phase>
             <configuration>
-              <arguments>test --watch false</arguments>
+              <arguments>test &#45;&#45;watch false</arguments>
             </configuration>
-          </execution>
+          </execution>-->
         </executions>
       </plugin>
     </plugins>

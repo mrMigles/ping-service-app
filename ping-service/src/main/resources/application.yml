@@ -16,6 +16,9 @@ auth:
       user: ${USER:admin}
       pass: ${PASS:admin}
 
+cors:
+  allowed-origins: ${ALLOWED_ORIGINS:}
+
 ---
 spring:
   profiles: dev

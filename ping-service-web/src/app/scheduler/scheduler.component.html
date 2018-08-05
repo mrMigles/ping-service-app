@@ -1,0 +1,70 @@
+<div class="page-header">
+  <h2>Ping Service</h2>
+</div>
+<div class="description">
+  Create task to ping your service!
+</div>
+<ngb-tabset>
+  <ngb-tab title="Schedule">
+    <ng-template ngbTabContent>
+
+      <form style="margin-top: 5px;">
+        <div class="form-row align-items-center">
+          <div class="col">
+            <label for="name">Name</label>
+            <input type="text" [(ngModel)]="task.name" class="form-control"
+                   id="name" name="name" placeholder="Name">
+          </div>
+          <div class="col">
+            <label for="url">URL</label>
+            <input type="text" [(ngModel)]="task.url" class="form-control"
+                   id="url" name="url" placeholder="URL">
+          </div>
+          <div class="col">
+            <label for="method">Method</label>
+            <select [(ngModel)]="task.method" id="method" name="method" class="form-control">
+              <option selected>GET</option>
+              <option>POST</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="cron">CRON</label>
+            <input type="text" [(ngModel)]="task.cron" class="form-control"
+                   id="cron" name="cron" placeholder="*/15 * * * * *">
+          </div>
+          <div class="col">
+            <a (click)="addTask()" class="btn btn-primary" style="margin-top: 32px" role="button">Submit</a>
+          </div>
+        </div>
+      </form>
+
+
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="My Tasks">
+    <ng-template ngbTabContent>
+
+      <table class="table">
+        <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">URL</th>
+          <th scope="col">Method</th>
+          <th scope="col">CRON</th>
+          <th scope="col">Is Active</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let task of tasks">
+          <td>{{task.name}}</td>
+          <td>{{task.url}}</td>
+          <td>{{task.method}}</td>
+          <td>{{task.cron}}</td>
+          <td>{{task.isActive}}</td>
+        </tr>
+        </tbody>
+      </table>
+
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
