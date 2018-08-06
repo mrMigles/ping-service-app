@@ -13,8 +13,8 @@ management:
 
 auth:
    internal:
-      user: ${USER:user1}
-      pass: ${PASS:user1Pass}
+      user: ${USER:admin}
+      pass: ${PASS:admin}
 
 ---
 spring:
