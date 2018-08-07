@@ -29,13 +29,17 @@ public class TaskSchedulerService {
 
   private final UserRepository userRepository;
 
+  private final TaskRunService taskRunService;
+
   private final Map<String, TaskInfo> scheduledTasks = new ConcurrentHashMap<>();
 
   public TaskSchedulerService(TaskScheduler taskScheduler,
-      TasksRepository tasksRepository, UserRepository userRepository) {
+      TasksRepository tasksRepository, UserRepository userRepository,
+      TaskRunService taskRunService) {
     this.taskScheduler = taskScheduler;
     this.tasksRepository = tasksRepository;
     this.userRepository = userRepository;
+    this.taskRunService = taskRunService;
   }
 
   @PostConstruct
@@ -66,7 +70,7 @@ public class TaskSchedulerService {
 
     if (task.getIsActive() == null || task.getIsActive()) {
       scheduledFuture = taskScheduler
-          .schedule(task, new CronTrigger(task.getCron()));
+          .schedule(new TaskRunContainer(task, taskRunService), new CronTrigger(task.getCron()));
     }
     tasksRepository.save(task);
     scheduledTasks.put(task.getName(), new TaskInfo(task, scheduledFuture));

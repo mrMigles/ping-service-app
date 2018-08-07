@@ -6,6 +6,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  influxdb:
+      url: http://80.211.29.54:8086
+      database: data
+      username: user
+      password: ~
+      retention-policy: autogen
 
 management:
    security:

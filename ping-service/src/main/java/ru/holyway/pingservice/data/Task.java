@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Entity
 @ApiModel(value = "Scheduled task")
-public class Task implements Runnable, Serializable {
+public class Task implements Serializable {
 
   @JsonProperty(required = true)
   @ApiModelProperty(value = "Scheduled interval fot the task in CRON format",
@@ -54,10 +54,4 @@ public class Task implements Runnable, Serializable {
   @ApiModelProperty(value = "State of task",
       allowableValues = "true,false")
   private Boolean isActive;
-
-  @Override
-  public void run() {
-    new RestTemplate().getForEntity(URI.create(url), String.class);
-    log.info("Request {}", url);
-  }
 }
