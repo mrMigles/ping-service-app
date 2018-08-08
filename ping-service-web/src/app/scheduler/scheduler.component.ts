@@ -25,7 +25,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   addTask(): void {
-    this.task.isActive = false;
+    this.task.isActive = true;
     this.schedulerService.addTask(this.task)
       .subscribe(task => this.tasks.push(task));
 
