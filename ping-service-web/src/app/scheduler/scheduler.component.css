@@ -1,0 +1,9 @@
+.page-header {
+  margin: 25px 0 15px;
+}
+
+.description {
+  padding: 3px 3px 3px 5px;
+  margin-bottom: 10px;
+  border-left: solid darkgray;
+}
