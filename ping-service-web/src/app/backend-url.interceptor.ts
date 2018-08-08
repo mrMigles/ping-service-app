@@ -8,7 +8,7 @@ export class BackendUrlInterceptor implements HttpInterceptor {
   /* constructor(@Inject('BASE_URL') private baseUrl: string) {} */
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const url = 'http://localhost:8080';
+    const url = window.location.origin + '/';
     req = req.clone({
       url: url + req.url,
       withCredentials: true
