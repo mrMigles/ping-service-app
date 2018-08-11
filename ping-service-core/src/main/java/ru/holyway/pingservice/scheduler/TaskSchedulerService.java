@@ -9,11 +9,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.holyway.pingservice.config.CurrentUser;
 import ru.holyway.pingservice.data.Task;
 import ru.holyway.pingservice.data.TaskInfo;
 import ru.holyway.pingservice.data.TasksRepository;
@@ -56,9 +54,7 @@ public class TaskSchedulerService {
   }
 
   public void addTask(final Task task) {
-    final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    final String userName = user.getUsername();
-    final UserInfo userInfo = userRepository.findOne(userName);
+    final UserInfo userInfo = CurrentUser.getCurrentUser();
     if (userInfo != null) {
       task.setUser(userInfo);
     }
@@ -129,18 +125,18 @@ public class TaskSchedulerService {
    * LOLOLOLO
    */
   private boolean checkAccess(final Task task) {
-    final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    if (isAdmin(user)) {
+    final UserInfo userInfo = CurrentUser.getCurrentUser();
+    if (isAdmin(userInfo)) {
       return true;
     }
-    return task.getUser() != null && task.getUser().getName().equals(user.getUsername());
+    return task.getUser() != null && task.getUser().getName().equals(userInfo.getName());
   }
 
   /**
    * LOLOLOOLOLOLOLOLLOLOLOLOLOLOLOLOL
    */
-  private boolean isAdmin(User user) {
-    if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+  private boolean isAdmin(UserInfo user) {
+    if (user.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
       return true;
     }
     return false;

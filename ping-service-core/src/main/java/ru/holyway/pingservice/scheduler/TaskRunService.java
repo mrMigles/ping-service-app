@@ -34,12 +34,14 @@ public class TaskRunService {
     } catch (HttpStatusCodeException exception) {
       httpStatus = exception.getStatusCode();
     }
-    final Point p = Point.measurement(task.getName())
-        .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-        .tag("tenant", "default")
-        .addField("status", httpStatus.value())
-        .build();
-    influxDBTemplate.write(p);
+    if (influxDBTemplate != null) {
+      final Point p = Point.measurement(task.getName())
+          .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+          .tag("tenant", "default")
+          .addField("status", httpStatus.value())
+          .build();
+      influxDBTemplate.write(p);
+    }
     log.info("Request {}", url);
   }
 }

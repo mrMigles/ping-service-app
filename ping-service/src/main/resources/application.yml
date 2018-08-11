@@ -7,10 +7,10 @@ spring:
     hibernate:
       ddl-auto: update
   influxdb:
-      url: http://80.211.29.54:8086
-      database: data
-      username: user
-      password: ~
+      url: ${INFLUX_URL:http://80.211.29.54:8086}
+      database: ${INFLUX_DB:data}
+      username: ${INFLUX_USER:user}
+      password: ${INFLUX_PASS:~}
       retention-policy: autogen
 
 management:
@@ -24,6 +24,25 @@ auth:
 
 cors:
   allowed-origins: ${ALLOWED_ORIGINS:}
+
+
+bot:
+  enabled: ${BOT_ENABLED:true}
+  config:
+    silentPeriod: ${SILENTPERIOD:10}
+    proxy:
+      host: ${PROXY_HOST:}
+      port: ${PROXY_PORT:}
+      user: ${PROXY_USER:}
+      pass: ${PROXY_PASS:}
+  credential:
+    telegram:
+      login: ${TELEGRAM_BOT_NAME:}
+      token: ${TELEGRAM_BOT_TOKEN:}
+    admin:
+      user: ${ADMIN_USER_NAME:admin}
+      pass: ${ADMIN_USER_PASS:admin}
+
 
 ---
 spring:
