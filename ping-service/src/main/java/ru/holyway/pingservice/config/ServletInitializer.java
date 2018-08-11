@@ -6,9 +6,9 @@ import ru.holyway.pingservice.PingServiceApplication;
 
 public class ServletInitializer extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(PingServiceApplication.class);
-	}
+  @Override
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    return application.sources(PingServiceApplication.class);
+  }
 
 }
