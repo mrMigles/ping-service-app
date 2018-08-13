@@ -1,4 +1,4 @@
-package ru.holyway.pingservice.data;
+package ru.holyway.pingservice.usermanagement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.Entity;

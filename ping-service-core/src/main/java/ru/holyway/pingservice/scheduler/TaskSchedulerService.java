@@ -12,11 +12,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.holyway.pingservice.config.CurrentUser;
-import ru.holyway.pingservice.data.Task;
-import ru.holyway.pingservice.data.TaskInfo;
-import ru.holyway.pingservice.data.TasksRepository;
-import ru.holyway.pingservice.data.UserInfo;
-import ru.holyway.pingservice.data.UserRepository;
+import ru.holyway.pingservice.usermanagement.UserInfo;
 
 @Component
 public class TaskSchedulerService {
@@ -25,18 +21,15 @@ public class TaskSchedulerService {
 
   private final TasksRepository tasksRepository;
 
-  private final UserRepository userRepository;
-
   private final TaskRunService taskRunService;
 
   private final Map<String, TaskInfo> scheduledTasks = new ConcurrentHashMap<>();
 
   public TaskSchedulerService(TaskScheduler taskScheduler,
-      TasksRepository tasksRepository, UserRepository userRepository,
+      TasksRepository tasksRepository,
       TaskRunService taskRunService) {
     this.taskScheduler = taskScheduler;
     this.tasksRepository = tasksRepository;
-    this.userRepository = userRepository;
     this.taskRunService = taskRunService;
   }
 

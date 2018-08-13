@@ -1,7 +1,7 @@
 package ru.holyway.pingservice.config;
 
 
-import ru.holyway.pingservice.data.UserInfo;
+import ru.holyway.pingservice.usermanagement.UserInfo;
 
 public class CurrentUser {
 

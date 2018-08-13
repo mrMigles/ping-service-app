@@ -31,11 +31,14 @@ public class SecurityConfiguration extends
   private FillUserContextFilter fillUserContextFilter;
 
   @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
     auth.inMemoryAuthentication()
         .withUser(userName).password(userPass)
         .authorities("ROLE_USER", "ROLE_ADMIN");
-    auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
   }
 
   @Override
@@ -58,9 +61,4 @@ public class SecurityConfiguration extends
     http.addFilterAfter(fillUserContextFilter, BasicAuthenticationFilter.class);
   }
 
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
 }

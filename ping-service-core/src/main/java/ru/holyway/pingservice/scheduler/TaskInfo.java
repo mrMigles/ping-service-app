@@ -1,4 +1,4 @@
-package ru.holyway.pingservice.data;
+package ru.holyway.pingservice.scheduler;
 
 
 import java.util.concurrent.ScheduledFuture;

@@ -36,11 +36,20 @@ public enum LocalizedMessage {
 
   HELP("Я могу следующее:", "I can the following"),
 
+  LANG("Я пока поддерживаю следующие языки:\n"
+      + "/rus - русский\n"
+      + "/eng - английский",
+      "I support the following languages:\n"
+          + "/rus - russian\n"
+          + "/eng - english"),
+
   CREATE("✔ Да, создать", "✔ Yes, create"),
 
   CANCEL("Отменить", "Cancel"),
 
   CANCELED("Отменено", "Canceled"),
+
+  DONE("Готово", "Done"),
 
   CRON_HELP("CRON это", "CRON it is");
 

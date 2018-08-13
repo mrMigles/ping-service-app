@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.ApiContext;
 import ru.holyway.pingservice.bot.PingServiceBot;
 import ru.holyway.pingservice.bot.handlers.CallbackHandler;
 import ru.holyway.pingservice.bot.handlers.MessageHandler;
-import ru.holyway.pingservice.data.UserRepository;
+import ru.holyway.pingservice.usermanagement.UserManagementService;
 
 @Configuration
 public class PingServiceConfiguration {
@@ -30,7 +30,7 @@ public class PingServiceConfiguration {
       @Value("${bot.credential.telegram.token}") final String botToken,
       List<MessageHandler> messageHandlers,
       List<CallbackHandler> callbackHandlers,
-      UserRepository userRepository,
+      UserManagementService userRepository,
       DefaultBotOptions botOptions) {
     return new PingServiceBot(botName, botToken, messageHandlers, callbackHandlers, userRepository,
         botOptions);

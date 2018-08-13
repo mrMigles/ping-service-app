@@ -7,21 +7,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import ru.holyway.pingservice.data.UserInfo;
-import ru.holyway.pingservice.data.UserRepository;
+import ru.holyway.pingservice.usermanagement.UserInfo;
+import ru.holyway.pingservice.usermanagement.UserManagementService;
 
 @Component(value = "userDetailService")
 public class DefaultUserDetailService implements UserDetailsService {
 
-  private final UserRepository userRepository;
+  private final UserManagementService userRepository;
 
-  public DefaultUserDetailService(UserRepository userRepository) {
+  public DefaultUserDetailService(UserManagementService userRepository) {
     this.userRepository = userRepository;
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    final UserInfo userInfo = userRepository.findOne(username);
+    final UserInfo userInfo = userRepository.getUser(username);
     if (userInfo == null) {
       throw new UsernameNotFoundException("Cannot find the user");
     }

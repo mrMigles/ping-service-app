@@ -13,15 +13,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import ru.holyway.pingservice.config.CurrentUser;
-import ru.holyway.pingservice.data.UserInfo;
-import ru.holyway.pingservice.data.UserRepository;
+import ru.holyway.pingservice.usermanagement.UserInfo;
+import ru.holyway.pingservice.usermanagement.UserManagementService;
 
 @Component
 public class FillUserContextFilter implements Filter {
 
-  final UserRepository userRepository;
+  final UserManagementService userRepository;
 
-  public FillUserContextFilter(UserRepository userRepository) {
+  public FillUserContextFilter(UserManagementService userRepository) {
     this.userRepository = userRepository;
   }
 
@@ -41,7 +41,7 @@ public class FillUserContextFilter implements Filter {
           final User user = (User) principal;
           final String role = user.getAuthorities().stream().findFirst().get().getAuthority();
           final UserInfo currentUserInfo = Optional
-              .ofNullable(userRepository.findOne(user.getUsername()))
+              .ofNullable(userRepository.getUser(user.getUsername()))
               .orElse(new UserInfo(user.getUsername(), role));
           CurrentUser.setCurrentUser(currentUserInfo);
         }

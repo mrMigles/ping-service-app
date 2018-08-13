@@ -1,7 +1,6 @@
 package ru.holyway.pingservice.scheduler;
 
 import lombok.Data;
-import ru.holyway.pingservice.data.Task;
 
 @Data
 public class TaskRunContainer implements Runnable {

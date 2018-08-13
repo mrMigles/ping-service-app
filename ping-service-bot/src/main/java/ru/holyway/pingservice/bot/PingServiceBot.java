@@ -1,7 +1,6 @@
 package ru.holyway.pingservice.bot;
 
 import java.util.List;
-import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,8 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 import ru.holyway.pingservice.bot.handlers.CallbackHandler;
 import ru.holyway.pingservice.bot.handlers.MessageHandler;
 import ru.holyway.pingservice.config.CurrentUser;
-import ru.holyway.pingservice.data.UserInfo;
-import ru.holyway.pingservice.data.UserRepository;
+import ru.holyway.pingservice.usermanagement.UserInfo;
+import ru.holyway.pingservice.usermanagement.UserManagementService;
 
 @Slf4j
 public class PingServiceBot extends TelegramLongPollingBot {
@@ -25,25 +24,14 @@ public class PingServiceBot extends TelegramLongPollingBot {
   private final String botToken;
   private final List<MessageHandler> messageHandlers;
   private final List<CallbackHandler> callbackHandlers;
-  private final UserRepository userRepository;
+  private final UserManagementService userRepository;
 
   private BotSession session;
 
   public PingServiceBot(String botName, String botToken,
       List<MessageHandler> messageHandlers,
       List<CallbackHandler> callbackHandlers,
-      UserRepository userRepository) {
-    this.botName = botName;
-    this.botToken = botToken;
-    this.messageHandlers = messageHandlers;
-    this.callbackHandlers = callbackHandlers;
-    this.userRepository = userRepository;
-  }
-
-  public PingServiceBot(String botName, String botToken,
-      List<MessageHandler> messageHandlers,
-      List<CallbackHandler> callbackHandlers,
-      UserRepository userRepository,
+      UserManagementService userRepository,
       DefaultBotOptions defaultBotOptions) {
     super(defaultBotOptions);
     this.botName = botName;
@@ -103,13 +91,13 @@ public class PingServiceBot extends TelegramLongPollingBot {
   }
 
   private void initCurrentUser(final User user) {
-    UserInfo currentUserInfo = userRepository.findOne(String.valueOf(user.getId()));
+    UserInfo currentUserInfo = userRepository.getUser(String.valueOf(user.getId()));
     if (currentUserInfo == null) {
       currentUserInfo = new UserInfo(String.valueOf(user.getId()),
-          UUID.randomUUID().toString().replaceAll("-", ""),
+          "",
           "ROLE_USER",
           user.getLanguageCode());
-      userRepository.save(currentUserInfo);
+      userRepository.addUser(currentUserInfo);
     }
     CurrentUser.setCurrentUser(currentUserInfo);
   }

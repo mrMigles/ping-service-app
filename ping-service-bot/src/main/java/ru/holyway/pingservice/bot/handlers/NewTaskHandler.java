@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.holyway.pingservice.bot.message.LocalizedMessage;
 import ru.holyway.pingservice.bot.message.MessageProvider;
-import ru.holyway.pingservice.data.Task;
+import ru.holyway.pingservice.scheduler.Task;
 import ru.holyway.pingservice.scheduler.TaskSchedulerService;
 
 @Component
