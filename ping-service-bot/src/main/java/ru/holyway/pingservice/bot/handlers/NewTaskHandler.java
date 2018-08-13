@@ -1,13 +1,11 @@
 package ru.holyway.pingservice.bot.handlers;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,11 +18,11 @@ import ru.holyway.pingservice.scheduler.Task;
 import ru.holyway.pingservice.scheduler.TaskSchedulerService;
 
 @Component
-public class NewTaskHandler implements MessageHandler, CallbackHandler {
+public class NewTaskHandler extends AbstractHandler implements MessageHandler, CallbackHandler {
 
   public NewTaskHandler(MessageProvider messageProvider,
       TaskSchedulerService schedulerClient) {
-    this.messageProvider = messageProvider;
+    super(messageProvider);
     this.schedulerClient = schedulerClient;
   }
 
@@ -39,7 +37,6 @@ public class NewTaskHandler implements MessageHandler, CallbackHandler {
   private final Map<Integer, State> stateOfUSers = new ConcurrentHashMap<>();
   private final Map<Integer, Task> tasks = new ConcurrentHashMap<>();
 
-  private final MessageProvider messageProvider;
   private final TaskSchedulerService schedulerClient;
 
   @Override
@@ -52,53 +49,44 @@ public class NewTaskHandler implements MessageHandler, CallbackHandler {
       final State state = getState(userId);
       if (state != State.NOT_STATE) {
         if (StringUtils.containsIgnoreCase("/cancel", textMessage)) {
-          sender.execute(
-              new SendMessage().setChatId(message.getChatId()).setText(messageProvider.getMessage(
-                  LocalizedMessage.CANCELED)));
+          sendMessage(sender, message.getChatId(), LocalizedMessage.CANCELED);
           stateOfUSers.put(userId, State.NOT_STATE);
           return true;
         }
       }
       if (state == State.NOT_STATE) {
         if (StringUtils.containsIgnoreCase("/new", textMessage)) {
-          sender.execute(
-              new SendMessage().setChatId(message.getChatId()).setText(messageProvider.getMessage(
-                  LocalizedMessage.ASK_NAME)));
+          sendMessage(sender, message.getChatId(), LocalizedMessage.ASK_NAME);
           stateOfUSers.put(userId, State.ASK_NAME);
+          return true;
         }
       } else if (state == State.ASK_NAME) {
         Task task = new Task();
         task.setName(textMessage);
         tasks.put(userId, task);
-
-        sender.execute(
-            new SendMessage().setChatId(message.getChatId()).setText(messageProvider.getMessage(
-                LocalizedMessage.ASK_URL)));
+        sendMessage(sender, message.getChatId(), LocalizedMessage.ASK_URL);
         stateOfUSers.put(userId, State.ASK_URL);
+        return true;
 
       } else if (state == State.ASK_URL) {
         Task task = tasks.get(userId);
         if (task != null) {
           task.setUrl(textMessage);
-
-          sender.execute(
-              new SendMessage().setChatId(message.getChatId()).setText(messageProvider.getMessage(
-                  LocalizedMessage.ASK_CRON)));
+          sendMessage(sender, message.getChatId(), LocalizedMessage.ASK_CRON);
           stateOfUSers.put(userId, State.ASK_DURATION);
 
         } else {
           stateOfUSers.put(userId, State.NOT_STATE);
         }
+        return true;
       } else if (state == State.ASK_DURATION) {
         Task task = tasks.get(userId);
         if (task != null) {
           if (textMessage.matches(".{1,5} .{1,5} .{1,5} .{1,5} .{1,5}")) {
             task.setCron("0 " + textMessage.trim());
             sender.execute(
-                new SendMessage().setChatId(message.getChatId()).setText(
-                    MessageFormat.format(messageProvider.getMessage(LocalizedMessage.CONFIRMATION),
-                        task.getName(), task.getUrl(), task.getCron()))
-                    .setReplyMarkup(getKeyboard()));
+                message(message.getChatId(), LocalizedMessage.CONFIRMATION, task.getName(),
+                    task.getUrl(), task.getCron()).setReplyMarkup(getKeyboard()));
             stateOfUSers.put(userId, State.CONFIRMATION);
           } else if (textMessage.startsWith("/")) {
             if (StringUtils.startsWithIgnoreCase(textMessage, "/heroku")) {
@@ -107,24 +95,18 @@ public class NewTaskHandler implements MessageHandler, CallbackHandler {
               task.setCron("0 */20 7-24 * * *");
             }
             sender.execute(
-                new SendMessage().setChatId(message.getChatId()).setText(
-                    MessageFormat.format(messageProvider.getMessage(LocalizedMessage.CONFIRMATION),
-                        task.getName(), task.getUrl(), task.getCron()))
-                    .setReplyMarkup(getKeyboard()));
+                message(message.getChatId(), LocalizedMessage.CONFIRMATION, task.getName(),
+                    task.getUrl(), task.getCron()).setReplyMarkup(getKeyboard()));
             stateOfUSers.put(userId, State.CONFIRMATION);
           } else {
-            sender.execute(
-                new SendMessage().setChatId(message.getChatId()).setText(messageProvider.getMessage(
-                    LocalizedMessage.INCORRECT_INPUT)));
+            sendMessage(sender, message.getChatId(), LocalizedMessage.INCORRECT_INPUT);
           }
-
         } else {
           stateOfUSers.put(userId, State.NOT_STATE);
         }
+        return true;
       }
-      return true;
     }
-
     return false;
   }
 
@@ -140,15 +122,9 @@ public class NewTaskHandler implements MessageHandler, CallbackHandler {
           final Task task = tasks.get(userId);
           task.setIsActive(true);
           schedulerClient.addTask(task);
-          sender.execute(
-              new SendMessage().setChatId(callbackQuery.getMessage().getChatId())
-                  .setText(messageProvider.getMessage(
-                      LocalizedMessage.CREATED)));
+          sendMessage(sender, callbackQuery.getMessage().getChatId(), LocalizedMessage.CREATED);
         } else {
-          sender.execute(
-              new SendMessage().setChatId(callbackQuery.getMessage().getChatId())
-                  .setText(messageProvider.getMessage(
-                      LocalizedMessage.CANCELED)));
+          sendMessage(sender, callbackQuery.getMessage().getChatId(), LocalizedMessage.CANCELED);
         }
         stateOfUSers.put(userId, State.NOT_STATE);
       }
@@ -165,12 +141,12 @@ public class NewTaskHandler implements MessageHandler, CallbackHandler {
     List<InlineKeyboardButton> buttons = new ArrayList<>();
     InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
     InlineKeyboardButton submitButton = new InlineKeyboardButton("Submit");
-    submitButton.setText("✔ Да, создать");
+    submitButton.setText(messageProvider.getMessage(LocalizedMessage.CREATE));
     submitButton.setCallbackData("new:submit");
     buttons.add(submitButton);
     InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
     cancelButton.setCallbackData("new:cancel");
-    cancelButton.setText("Отменить");
+    cancelButton.setText(messageProvider.getMessage(LocalizedMessage.CANCEL));
     buttons.add(cancelButton);
     buttonList.add(buttons);
     inlineKeyboardMarkup.setKeyboard(buttonList);

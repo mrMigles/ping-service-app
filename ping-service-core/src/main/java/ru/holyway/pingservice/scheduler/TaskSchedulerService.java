@@ -46,15 +46,15 @@ public class TaskSchedulerService {
     return tasks.stream().filter(this::checkAccess).collect(Collectors.toList());
   }
 
-  public void addTask(final Task task) {
+  public Task addTask(final Task task) {
     final UserInfo userInfo = CurrentUser.getCurrentUser();
     if (userInfo != null) {
       task.setUser(userInfo);
     }
-    addTaskInternal(task);
+    return addTaskInternal(task);
   }
 
-  private void addTaskInternal(final Task task) {
+  private Task addTaskInternal(final Task task) {
     ScheduledFuture scheduledFuture = null;
 
     if (task.getIsActive() == null || task.getIsActive()) {
@@ -63,38 +63,39 @@ public class TaskSchedulerService {
     }
     tasksRepository.save(task);
     scheduledTasks.put(task.getName(), new TaskInfo(task, scheduledFuture));
+    return task;
   }
 
-  public void updateTask(final Task task) {
+  public Task updateTask(final Task task) {
     final TaskInfo taskInfo = scheduledTasks.get(task.getName());
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final ScheduledFuture scheduledFuture = taskInfo.getScheduledFuture();
       if (scheduledFuture != null) {
         scheduledFuture.cancel(false);
       }
-      addTask(task);
+      return addTask(task);
     } else {
       throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
     }
   }
 
-  public void startTask(final String name) {
+  public Task startTask(final String name) {
     final TaskInfo taskInfo = scheduledTasks.get(name);
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final Task task = taskInfo.getTask();
       task.setIsActive(true);
-      updateTask(task);
+      return updateTask(task);
     } else {
       throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
     }
   }
 
-  public void stopTask(final String name) {
+  public Task stopTask(final String name) {
     final TaskInfo taskInfo = scheduledTasks.get(name);
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final Task task = taskInfo.getTask();
       task.setIsActive(false);
-      updateTask(task);
+      return updateTask(task);
     } else {
       throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
     }

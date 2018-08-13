@@ -6,9 +6,15 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.holyway.pingservice.bot.message.LocalizedMessage;
+import ru.holyway.pingservice.bot.message.MessageProvider;
 
 @Component
-public class HelpHandler implements MessageHandler {
+public class HelpHandler extends AbstractHandler implements MessageHandler {
+
+  protected HelpHandler(MessageProvider messageProvider) {
+    super(messageProvider);
+  }
 
   @Override
   public boolean execute(Message message, AbsSender sender)
@@ -16,11 +22,11 @@ public class HelpHandler implements MessageHandler {
     final String textMessage = message.getText();
     if (StringUtils.isNotEmpty(textMessage)) {
       if (StringUtils.containsIgnoreCase(textMessage, "/help")) {
-        sender.execute(new SendMessage().setChatId(message.getChatId()).setText("Help"));
+        sendMessage(sender, message.getChatId(), LocalizedMessage.HELP);
         return true;
       }
-      if (StringUtils.containsIgnoreCase(textMessage, "/curlHelp")) {
-        sender.execute(new SendMessage().setChatId(message.getChatId()).setText("Help"));
+      if (StringUtils.containsIgnoreCase(textMessage, "/cron")) {
+        sender.execute(message(message.getChatId(), LocalizedMessage.CRON).enableHtml(false));
         return true;
       }
     }
