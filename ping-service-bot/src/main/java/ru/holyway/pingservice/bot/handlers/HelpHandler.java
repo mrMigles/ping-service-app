@@ -2,7 +2,6 @@ package ru.holyway.pingservice.bot.handlers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -26,7 +25,7 @@ public class HelpHandler extends AbstractHandler implements MessageHandler {
         return true;
       }
       if (StringUtils.containsIgnoreCase(textMessage, "/cron")) {
-        sender.execute(message(message.getChatId(), LocalizedMessage.CRON).enableHtml(false));
+        sendMessage(sender, message.getChatId(), LocalizedMessage.CRON);
         return true;
       }
     }

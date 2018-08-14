@@ -83,7 +83,8 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
       throws TelegramApiException {
     sender.execute(
         message(chatId, LocalizedMessage.TASK, task.getName(), task.getUrl(), task.getCron(),
-            task.getIsActive()).setReplyMarkup(getKeyboard(task)));
+            task.getIsActive(), "✅", "https://ping-services.herokuapp.com/scheduler/task/" + task.getName() + "?token=asdsadsadasdasdasd")
+            .setReplyMarkup(getKeyboard(task)));
   }
 
   private void updateTaskInfo(final AbsSender sender, final Integer messageId, final Long chatId,
@@ -91,7 +92,7 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
       throws TelegramApiException {
     final String text = MessageFormat
         .format(messageProvider.getMessage(LocalizedMessage.TASK), task.getName(), task.getUrl(),
-            task.getCron(), task.getIsActive());
+            task.getCron(), task.getIsActive(), "✅", "https://ping-services.herokuapp.com/scheduler/task/" + task.getName() + "?token=asdsadsadasdasdasd");
     sender.execute(new EditMessageText().setChatId(chatId).setMessageId(messageId).setText(text)
         .enableHtml(true));
     sender.execute(new EditMessageReplyMarkup().setChatId(chatId).setMessageId(messageId)
