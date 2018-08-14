@@ -1,7 +1,9 @@
 package ru.holyway.pingservice.bot.handlers;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.holyway.pingservice.bot.message.LocalizedMessage;
 import ru.holyway.pingservice.bot.message.MessageProvider;
+import ru.holyway.pingservice.monitoring.TaskMonitoringService;
+import ru.holyway.pingservice.monitoring.TaskStatus;
 import ru.holyway.pingservice.scheduler.Task;
 import ru.holyway.pingservice.scheduler.TaskSchedulerService;
 
@@ -25,11 +29,14 @@ import ru.holyway.pingservice.scheduler.TaskSchedulerService;
 public class TaskListHandler extends AbstractHandler implements CallbackHandler, MessageHandler {
 
   private final TaskSchedulerService taskSchedulerService;
+  private final TaskMonitoringService taskMonitoringService;
 
   protected TaskListHandler(MessageProvider messageProvider,
-      TaskSchedulerService taskSchedulerService) {
+      TaskSchedulerService taskSchedulerService,
+      TaskMonitoringService taskMonitoringService) {
     super(messageProvider);
     this.taskSchedulerService = taskSchedulerService;
+    this.taskMonitoringService = taskMonitoringService;
   }
 
   @Override
@@ -81,18 +88,81 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
 
   private void sendTaskInfo(final AbsSender sender, final Long chatId, final Task task)
       throws TelegramApiException {
+    TaskStatus taskStatus = taskMonitoringService.getLastTaskStatus(task);
+    String status;
+    String time;
+    if (taskStatus != null) {
+      if (taskStatus.getSuccess()) {
+        if (taskStatus.getStatus() == 200) {
+          status = messageProvider.getMessage(LocalizedMessage.SUCCESS_TASK);
+        } else {
+          status = MessageFormat
+              .format(messageProvider.getMessage(LocalizedMessage.UN_SUCCESS_TASK),
+                  taskStatus.getStatus());
+        }
+      } else {
+        status = messageProvider.getMessage(LocalizedMessage.FAILED_TASK);
+      }
+      final Date date = new Date(taskStatus.getTimeStamp());
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+      simpleDateFormat.applyPattern("HH:mm:ss");
+      time = simpleDateFormat.format(date);
+    } else {
+      status = messageProvider.getMessage(LocalizedMessage.NOT_DATA);
+      time = messageProvider.getMessage(LocalizedMessage.NOT_DATA);
+    }
+
     sender.execute(
-        message(chatId, LocalizedMessage.TASK, task.getName(), task.getUrl(), task.getCron(),
-            task.getIsActive(), "✅", "https://ping-services.herokuapp.com/scheduler/task/" + task.getName() + "?token=asdsadsadasdasdasd")
-            .setReplyMarkup(getKeyboard(task)));
+        message(chatId, LocalizedMessage.TASK,
+            task.getName(),
+            task.getUrl(),
+            task.getCron(),
+            task.getIsActive() ? messageProvider.getMessage(LocalizedMessage.STARTED)
+                : messageProvider.getMessage(LocalizedMessage.STOPPED),
+            status,
+            time,
+            "https://ping-services.herokuapp.com/scheduler/task/" + task.getName()
+                + "?token=asdsadsadasdasdasd"
+        ).setReplyMarkup(getKeyboard(task)));
   }
 
   private void updateTaskInfo(final AbsSender sender, final Integer messageId, final Long chatId,
       final Task task)
       throws TelegramApiException {
+    TaskStatus taskStatus = taskMonitoringService.getLastTaskStatus(task);
+    String status;
+    String time;
+    if (taskStatus != null) {
+      if (taskStatus.getSuccess()) {
+        if (taskStatus.getStatus() == 200) {
+          status = messageProvider.getMessage(LocalizedMessage.SUCCESS_TASK);
+        } else {
+          status = MessageFormat
+              .format(messageProvider.getMessage(LocalizedMessage.UN_SUCCESS_TASK),
+                  taskStatus.getStatus());
+        }
+      } else {
+        status = messageProvider.getMessage(LocalizedMessage.FAILED_TASK);
+      }
+      final Date date = new Date(taskStatus.getTimeStamp());
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+      simpleDateFormat.applyPattern("HH:mm:ss");
+      time = simpleDateFormat.format(date);
+    } else {
+      status = messageProvider.getMessage(LocalizedMessage.NOT_DATA);
+      time = messageProvider.getMessage(LocalizedMessage.NOT_DATA);
+    }
     final String text = MessageFormat
-        .format(messageProvider.getMessage(LocalizedMessage.TASK), task.getName(), task.getUrl(),
-            task.getCron(), task.getIsActive(), "✅", "https://ping-services.herokuapp.com/scheduler/task/" + task.getName() + "?token=asdsadsadasdasdasd");
+        .format(messageProvider.getMessage(LocalizedMessage.TASK),
+            task.getName(),
+            task.getUrl(),
+            task.getCron(),
+            task.getIsActive() ? messageProvider.getMessage(LocalizedMessage.STARTED)
+                : messageProvider.getMessage(LocalizedMessage.STOPPED),
+            status,
+            time,
+            "https://ping-services.herokuapp.com/scheduler/task/" + task.getName()
+                + "?token=asdsadsadasdasdasd");
     sender.execute(new EditMessageText().setChatId(chatId).setMessageId(messageId).setText(text)
         .enableHtml(true));
     sender.execute(new EditMessageReplyMarkup().setChatId(chatId).setMessageId(messageId)

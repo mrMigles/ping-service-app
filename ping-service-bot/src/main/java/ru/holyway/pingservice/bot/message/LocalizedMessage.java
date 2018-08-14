@@ -86,22 +86,35 @@ public enum LocalizedMessage {
 
   CANCELED("Отменено", "Canceled"),
 
+  STARTED("Активно", "In Progress"),
+
+  STOPPED("Остановлено", "Stopped"),
+
   THERE_NO_TASKS("Нет задач", "There no tasks"),
 
   DONE("\uD83D\uDC4D Готово", "\uD83D\uDC4D Done"),
 
+  UN_SUCCESS_TASK("⚠️ ({0})", "⚠️ ({0})"),
+
+  SUCCESS_TASK("✅ (200)", "✅ (200)"),
+
+  NOT_DATA("Н/д", "N/A"),
+
+  FAILED_TASK("\uD83D\uDED1", "\uD83D\uDED1"),
+
+
   TASK("<b>Название:</b> {0}\n"
       + "<b>URL:</b> {1}\n"
       + "<b>CRON:</b> {2}\n"
-      + "<b>Статус:</b> {3}\n"
-      + "<b>Последний результат:</b> {4}\n"
-      + "<a href=\"{5}\">Посмотреть статистику \uD83D\uDCC8</a>",
+      + "<b>Состояние:</b> {3}\n"
+      + "<b>Последний статус:</b> {4} на {5}\n\n"
+      + "<a href=\"{6}\">Посмотреть статистику \uD83D\uDCC8</a>",
       "<b>Name: {0}</b>\n"
           + "<b>URL:</b> {1}\n"
           + "<b>CRON:</b> {2}\n"
           + "<b>Status:</b> {3}\n"
-          + "<b>Last result:</b> {4}\n"
-          + "<a href=\"{5}\">Show statistics \uD83D\uDCC8</a>"),
+          + "<b>Last result:</b> {4} on {5}\n\n"
+          + "<a href=\"{6}\">Show statistics \uD83D\uDCC8</a>"),
 
   CRON_HELP("CRON это", "CRON it is");
 
