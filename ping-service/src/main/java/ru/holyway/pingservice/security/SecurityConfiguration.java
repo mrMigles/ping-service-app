@@ -2,16 +2,15 @@ package ru.holyway.pingservice.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +31,9 @@ public class SecurityConfiguration extends
 
   @Autowired
   private PasswordEncoder passwordEncoder;
+
+  @Autowired
+  private TokenAuthenticationFilter tokenAuthenticationFilter;
 
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -59,6 +61,7 @@ public class SecurityConfiguration extends
         .permitAll();
     http.userDetailsService(userDetailsService);
     http.addFilterAfter(fillUserContextFilter, BasicAuthenticationFilter.class);
+    http.addFilterAfter(tokenAuthenticationFilter, SessionManagementFilter.class);
   }
 
 }

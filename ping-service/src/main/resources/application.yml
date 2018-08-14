@@ -56,6 +56,8 @@ spring:
     username: ${DATASOURCE_USERNAME:sa}
     password: ${DATASOURCE_PASSWORD:}
     driver-class-name: org.h2.Driver
+server:
+  url: ${BACKEND_URL:https://ping-services.herokuapp.com}
 logging:
   file: logs/pingservice_dev.log
   level:
@@ -70,6 +72,8 @@ spring:
     username: ${DATASOURCE_USERNAME}
     password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+server:
+  url: ${BACKEND_URL:https://ping-services.herokuapp.com}
 logging:
   file: logs/pingservice_prod.log
   level:

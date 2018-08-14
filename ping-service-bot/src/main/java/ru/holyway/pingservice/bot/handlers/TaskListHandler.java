@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -20,23 +21,31 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.holyway.pingservice.bot.message.LocalizedMessage;
 import ru.holyway.pingservice.bot.message.MessageProvider;
+import ru.holyway.pingservice.config.CurrentUser;
 import ru.holyway.pingservice.monitoring.TaskMonitoringService;
 import ru.holyway.pingservice.monitoring.TaskStatus;
 import ru.holyway.pingservice.scheduler.Task;
 import ru.holyway.pingservice.scheduler.TaskSchedulerService;
+import ru.holyway.pingservice.security.TokenService;
 
 @Component
 public class TaskListHandler extends AbstractHandler implements CallbackHandler, MessageHandler {
 
   private final TaskSchedulerService taskSchedulerService;
   private final TaskMonitoringService taskMonitoringService;
+  private final TokenService tokenService;
+  private final String serverUrl;
 
   protected TaskListHandler(MessageProvider messageProvider,
       TaskSchedulerService taskSchedulerService,
-      TaskMonitoringService taskMonitoringService) {
+      TaskMonitoringService taskMonitoringService,
+      TokenService tokenService,
+      @Value("${server.url}") String serverUrl) {
     super(messageProvider);
     this.taskSchedulerService = taskSchedulerService;
     this.taskMonitoringService = taskMonitoringService;
+    this.tokenService = tokenService;
+    this.serverUrl = serverUrl;
   }
 
   @Override
@@ -121,8 +130,8 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
                 : messageProvider.getMessage(LocalizedMessage.STOPPED),
             status,
             time,
-            "https://ping-services.herokuapp.com/scheduler/task/" + task.getName()
-                + "?token=asdsadsadasdasdasd"
+            serverUrl + "/scheduler/task/" + task.getName()
+                + "?token=" + tokenService.getToken(CurrentUser.getCurrentUser().getName())
         ).setReplyMarkup(getKeyboard(task)));
   }
 
@@ -161,8 +170,8 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
                 : messageProvider.getMessage(LocalizedMessage.STOPPED),
             status,
             time,
-            "https://ping-services.herokuapp.com/scheduler/task/" + task.getName()
-                + "?token=asdsadsadasdasdasd");
+            serverUrl + "/scheduler/task/" + task.getName()
+                + "?token=" + tokenService.getToken(CurrentUser.getCurrentUser().getName()));
     sender.execute(new EditMessageText().setChatId(chatId).setMessageId(messageId).setText(text)
         .enableHtml(true));
     sender.execute(new EditMessageReplyMarkup().setChatId(chatId).setMessageId(messageId)

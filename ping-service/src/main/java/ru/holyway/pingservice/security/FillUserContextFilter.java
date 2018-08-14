@@ -45,6 +45,15 @@ public class FillUserContextFilter implements Filter {
               .orElse(new UserInfo(user.getUsername(), role));
           CurrentUser.setCurrentUser(currentUserInfo);
         }
+        if (principal != null && principal instanceof String) {
+          final String user = (String) principal;
+          final String role = authentication.getAuthorities().stream().findFirst().get()
+              .getAuthority();
+          final UserInfo currentUserInfo = Optional
+              .ofNullable(userRepository.getUser(user))
+              .orElse(new UserInfo(user, role));
+          CurrentUser.setCurrentUser(currentUserInfo);
+        }
       }
     } finally {
       filterChain.doFilter(servletRequest, servletResponse);
