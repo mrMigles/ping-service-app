@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -18,8 +20,13 @@ import ru.holyway.pingservice.usermanagement.UserInfo;
 @Data
 @Slf4j
 @Entity
+@EntityListeners(TaskListener.class)
 @ApiModel(value = "Scheduled task")
 public class Task implements Serializable {
+
+  @Id
+  @GeneratedValue
+  private Long id;
 
   @JsonProperty(required = true)
   @ApiModelProperty(value = "Scheduled interval fot the task in CRON format",
@@ -30,7 +37,6 @@ public class Task implements Serializable {
   private String cron;
 
   @JsonProperty(required = true)
-  @Id
   @ApiModelProperty(value = "Name of task - should be unique")
   private String name;
 
@@ -53,4 +59,28 @@ public class Task implements Serializable {
   @ApiModelProperty(value = "State of task",
       allowableValues = "true,false")
   private Boolean isActive;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Task task = (Task) o;
+
+    if (name != null ? !name.equals(task.name) : task.name != null) {
+      return false;
+    }
+    return user != null ? user.equals(task.user) : task.user == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (user != null ? user.hashCode() : 0);
+    return result;
+  }
 }

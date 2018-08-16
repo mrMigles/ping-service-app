@@ -1,17 +1,18 @@
 package ru.holyway.pingservice.scheduler;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import org.springframework.http.HttpStatus;
+import javax.transaction.Transactional;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.holyway.pingservice.config.CurrentUser;
+import ru.holyway.pingservice.scheduler.TaskScheduleException.Status;
 import ru.holyway.pingservice.usermanagement.UserInfo;
 
 @Component
@@ -23,7 +24,7 @@ public class TaskSchedulerService {
 
   private final TaskRunService taskRunService;
 
-  private final Map<String, TaskInfo> scheduledTasks = new ConcurrentHashMap<>();
+  private final Set<TaskInfo> scheduledTasks = new HashSet<>();
 
   public TaskSchedulerService(TaskScheduler taskScheduler,
       TasksRepository tasksRepository,
@@ -35,83 +36,97 @@ public class TaskSchedulerService {
 
   @PostConstruct
   private void initTasks() {
-    tasksRepository.findAll().forEach(this::addTaskInternal);
+    tasksRepository.findAll().forEach(this::scheduleTask);
   }
 
   public List<Task> getTasks() {
-
-    List<Task> tasks = scheduledTasks.values().stream().map(TaskInfo::getTask).collect(
-        Collectors.toList());
-
+    List<Task> tasks = scheduledTasks.stream().map(TaskInfo::getTask).collect(Collectors.toList());
     return tasks.stream().filter(this::checkAccess).collect(Collectors.toList());
   }
 
+  @Transactional
   public Task addTask(final Task task) {
+    return addTask(task, true);
+  }
+
+  private Task addTask(final Task task, final boolean isNew) {
     final UserInfo userInfo = CurrentUser.getCurrentUser();
     if (userInfo != null) {
       task.setUser(userInfo);
     }
-    return addTaskInternal(task);
+    if (isNew && getTasks().contains(task)) {
+      throw new TaskScheduleException(Status.CONFLICT);
+    }
+    Task newTask = tasksRepository.save(task);
+    scheduleTask(newTask);
+    return newTask;
   }
 
-  private Task addTaskInternal(final Task task) {
+  private void scheduleTask(final Task task) {
     ScheduledFuture scheduledFuture = null;
 
     if (task.getIsActive() == null || task.getIsActive()) {
       scheduledFuture = taskScheduler
           .schedule(new TaskRunContainer(task, taskRunService), new CronTrigger(task.getCron()));
     }
-    tasksRepository.save(task);
-    scheduledTasks.put(task.getName(), new TaskInfo(task, scheduledFuture));
-    return task;
+    scheduledTasks.add(new TaskInfo(task, scheduledFuture));
   }
 
   public Task updateTask(final Task task) {
-    final TaskInfo taskInfo = scheduledTasks.get(task.getName());
-    if (taskInfo != null && checkAccess(taskInfo.getTask())) {
+    final UserInfo userInfo = CurrentUser.getCurrentUser();
+    if (userInfo != null) {
+      task.setUser(userInfo);
+    }
+    final TaskInfo taskInfo = scheduledTasks.stream()
+        .filter(taskInfo1 -> taskInfo1.getTask().equals(task)).findFirst().orElse(null);
+    if (taskInfo != null) {
+      task.setId(taskInfo.getTask().getId());
       final ScheduledFuture scheduledFuture = taskInfo.getScheduledFuture();
       if (scheduledFuture != null) {
         scheduledFuture.cancel(false);
       }
-      return addTask(task);
+      return addTask(task, false);
     } else {
-      throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+      throw new TaskScheduleException(Status.NOT_FOUND);
     }
   }
 
   public Task startTask(final String name) {
-    final TaskInfo taskInfo = scheduledTasks.get(name);
+    final TaskInfo taskInfo = getTaskInfo(name);
+
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final Task task = taskInfo.getTask();
       task.setIsActive(true);
       return updateTask(task);
     } else {
-      throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+      throw new TaskScheduleException(Status.NOT_FOUND);
     }
   }
 
   public Task stopTask(final String name) {
-    final TaskInfo taskInfo = scheduledTasks.get(name);
-    if (taskInfo != null && checkAccess(taskInfo.getTask())) {
+    final TaskInfo taskInfo = getTaskInfo(name);
+
+    if (taskInfo != null) {
       final Task task = taskInfo.getTask();
       task.setIsActive(false);
       return updateTask(task);
     } else {
-      throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+      throw new TaskScheduleException(Status.NOT_FOUND);
     }
   }
 
   public void removeTask(final String name) {
-    final TaskInfo taskInfo = scheduledTasks.get(name);
+    final TaskInfo taskInfo = getTaskInfo(name);
+
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
-      final ScheduledFuture scheduledFuture = scheduledTasks.get(name).getScheduledFuture();
+      final ScheduledFuture scheduledFuture = taskInfo.getScheduledFuture();
       if (scheduledFuture != null) {
         scheduledFuture.cancel(false);
       }
-      tasksRepository.delete(name);
-      scheduledTasks.remove(name);
+      tasksRepository.delete(taskInfo.getTask());
+      scheduledTasks.remove(taskInfo);
     } else {
-      throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+      throw new TaskScheduleException(Status.NOT_FOUND);
     }
   }
 
@@ -135,4 +150,13 @@ public class TaskSchedulerService {
     }
     return false;
   }
+
+  @Nullable
+  private TaskInfo getTaskInfo(String name) {
+    final UserInfo userInfo = CurrentUser.getCurrentUser();
+    return scheduledTasks.stream().filter(
+        taskInfo1 -> taskInfo1.getTask().getName().equals(name) && taskInfo1.getTask().getUser()
+            .equals(userInfo)).findFirst().orElse(null);
+  }
+
 }

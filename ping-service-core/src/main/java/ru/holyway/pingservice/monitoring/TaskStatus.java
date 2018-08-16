@@ -1,10 +1,11 @@
 package ru.holyway.pingservice.monitoring;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import lombok.Data;
 import ru.holyway.pingservice.scheduler.Task;
 
@@ -36,7 +37,7 @@ public class TaskStatus {
     this.task = task;
   }
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "task_id")
   private Task task;
 }

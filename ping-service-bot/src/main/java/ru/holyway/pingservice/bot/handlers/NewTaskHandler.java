@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -15,6 +16,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.holyway.pingservice.bot.message.LocalizedMessage;
 import ru.holyway.pingservice.bot.message.MessageProvider;
 import ru.holyway.pingservice.scheduler.Task;
+import ru.holyway.pingservice.scheduler.TaskScheduleException;
+import ru.holyway.pingservice.scheduler.TaskScheduleException.Status;
 import ru.holyway.pingservice.scheduler.TaskSchedulerService;
 
 @Component
@@ -121,8 +124,22 @@ public class NewTaskHandler extends AbstractHandler implements MessageHandler, C
         if (callback.equalsIgnoreCase("new:submit")) {
           final Task task = tasks.get(userId);
           task.setIsActive(true);
-          schedulerClient.addTask(task);
-          sendMessage(sender, callbackQuery.getMessage().getChatId(), LocalizedMessage.CREATED);
+          try {
+            schedulerClient.addTask(task);
+            sendMessage(sender, callbackQuery.getMessage().getChatId(), LocalizedMessage.CREATED);
+            sender.execute(new AnswerCallbackQuery().setCallbackQueryId(callbackQuery.getId())
+                .setText(messageProvider.getMessage(LocalizedMessage.DONE)));
+          } catch (TaskScheduleException e) {
+            if (e.getStatus() == Status.CONFLICT) {
+              sendMessage(sender, callbackQuery.getMessage().getChatId(),
+                  LocalizedMessage.NAME_EXIST);
+            } else {
+              sendMessage(sender, callbackQuery.getMessage().getChatId(),
+                  LocalizedMessage.INCORRECT_INPUT);
+            }
+            sender.execute(new AnswerCallbackQuery().setCallbackQueryId(callbackQuery.getId())
+                .setText(messageProvider.getMessage(LocalizedMessage.NOT_DONE)));
+          }
         } else {
           sendMessage(sender, callbackQuery.getMessage().getChatId(), LocalizedMessage.CANCELED);
         }

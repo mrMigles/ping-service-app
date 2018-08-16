@@ -97,7 +97,7 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
 
   private void sendTaskInfo(final AbsSender sender, final Long chatId, final Task task)
       throws TelegramApiException {
-    TaskStatus taskStatus = taskMonitoringService.getLastTaskStatus(task);
+    TaskStatus taskStatus = taskMonitoringService.getTaskStatus(task);
     String status;
     String time;
     if (taskStatus != null) {
@@ -138,7 +138,7 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
   private void updateTaskInfo(final AbsSender sender, final Integer messageId, final Long chatId,
       final Task task)
       throws TelegramApiException {
-    TaskStatus taskStatus = taskMonitoringService.getLastTaskStatus(task);
+    TaskStatus taskStatus = taskMonitoringService.getTaskStatus(task);
     String status;
     String time;
     if (taskStatus != null) {

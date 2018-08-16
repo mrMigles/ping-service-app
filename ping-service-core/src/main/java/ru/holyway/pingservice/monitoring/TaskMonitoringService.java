@@ -1,7 +1,5 @@
 package ru.holyway.pingservice.monitoring;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.holyway.pingservice.scheduler.Task;
@@ -17,21 +15,22 @@ public class TaskMonitoringService {
     this.taskStatusRepository = taskStatusRepository;
   }
 
-  public List<TaskStatus> getTaskStatuses(final Task task) {
+  public TaskStatus getTaskStatus(final Task task) {
     if (task != null) {
       return taskStatusRepository.findByTask(task);
-    }
-    return Collections.emptyList();
-  }
-
-  public TaskStatus getLastTaskStatus(final Task task) {
-    if (task != null) {
-      return taskStatusRepository.findFirstByTaskOrderByTimeStampDesc(task);
     }
     return null;
   }
 
   public void saveResult(final TaskStatus taskStatus) {
+    final TaskStatus current = taskStatusRepository.findByTask(taskStatus.getTask());
+    if (current != null) {
+      taskStatus.setId(current.getId());
+    }
     taskStatusRepository.save(taskStatus);
+  }
+
+  public void removeStatusForTask(final Task task) {
+    taskStatusRepository.deleteByTask(task);
   }
 }

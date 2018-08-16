@@ -32,6 +32,8 @@ public enum LocalizedMessage {
 
   CREATED("Задача была создана успешно", "Task has been created successfully"),
 
+  NAME_EXIST("Задача с таким имененм уже сущесвует", "Task with this name already exist"),
+
   HI("Привет!\nЯ предоставляю упрощенный фуникцонал сервиса <a href=\"https://ping-services.herokuapp.com\">Ping Service</a>\n"
       + "Я помогу твоему приложению быть всегда доступным и на дам усыпить его. \n"
       + "Я делаю это путем отправки периодических ping запросов на указанный Вами URL и указанной периодичностью.\n"
@@ -93,6 +95,8 @@ public enum LocalizedMessage {
   THERE_NO_TASKS("Нет задач", "There no tasks"),
 
   DONE("\uD83D\uDC4D Готово", "\uD83D\uDC4D Done"),
+
+  NOT_DONE("\uD83D\uDC4E Ошибка", "\uD83D\uDC4E Error"),
 
   UN_SUCCESS_TASK("⚠️ ({0})", "⚠️ ({0})"),
 

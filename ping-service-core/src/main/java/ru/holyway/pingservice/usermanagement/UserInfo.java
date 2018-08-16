@@ -1,16 +1,16 @@
 package ru.holyway.pingservice.usermanagement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @NoArgsConstructor
-public class UserInfo {
+public class UserInfo implements Serializable {
 
   public UserInfo(String name, String role) {
     this.name = name;
