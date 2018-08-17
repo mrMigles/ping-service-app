@@ -48,7 +48,7 @@ public class TaskSchedulerService {
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       return taskInfo.getTask();
     }
-    return null;
+    throw new TaskScheduleException(Status.NOT_FOUND);
   }
 
   @Transactional

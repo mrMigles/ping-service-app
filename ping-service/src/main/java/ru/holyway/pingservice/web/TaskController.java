@@ -34,14 +34,14 @@ public class TaskController {
   @ApiOperation(value = "Create a new task")
   @RequestMapping(value = "/", method = RequestMethod.PUT)
   @BasicAuthDefinition(key = "basic")
-  public ResponseEntity<String> createTask(@RequestBody Task task) {
-    taskSchedulerService.addTask(task);
-    return new ResponseEntity<>("Created with name " + task.getName(), HttpStatus.CREATED);
+  public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    final Task createdTask = taskSchedulerService.addTask(task);
+    return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
   }
 
   @PreAuthorize("hasRole('USER')")
   @RequestMapping(value = "/", method = RequestMethod.GET)
-  @ApiOperation(value = "Return all taks of this user")
+  @ApiOperation(value = "Return all tasks of current user")
   public ResponseEntity<List<Task>> getTasks() {
     return new ResponseEntity<>(taskSchedulerService.getTasks(), HttpStatus.OK);
   }
@@ -49,9 +49,9 @@ public class TaskController {
   @PreAuthorize("hasRole('USER')")
   @RequestMapping(value = "/", method = RequestMethod.POST)
   @ApiOperation(value = "Update specified task")
-  public ResponseEntity<String> updateTask(@RequestBody Task task) {
-    taskSchedulerService.updateTask(task);
-    return new ResponseEntity<>("Updated with name " + task.getName(), HttpStatus.CREATED);
+  public ResponseEntity<Task> updateTask(@RequestBody Task task) {
+    final Task updatedTask = taskSchedulerService.updateTask(task);
+    return new ResponseEntity<>(updatedTask, HttpStatus.OK);
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -59,22 +59,22 @@ public class TaskController {
   @ApiOperation(value = "Remove specified task")
   public ResponseEntity<String> removeTask(@PathVariable Long taskId) {
     taskSchedulerService.removeTask(taskId);
-    return new ResponseEntity<>("Removed", HttpStatus.OK);
+    return new ResponseEntity<>("Removed", HttpStatus.NO_CONTENT);
   }
 
   @PreAuthorize("hasRole('USER')")
   @RequestMapping(value = "/{taskId}/start", method = RequestMethod.POST)
   @ApiOperation(value = "Run specified task")
-  public ResponseEntity<String> startTask(@PathVariable Long taskId) {
-    taskSchedulerService.startTask(taskId);
-    return new ResponseEntity<>("Started", HttpStatus.OK);
+  public ResponseEntity<Task> startTask(@PathVariable Long taskId) {
+    final Task updatedTask = taskSchedulerService.startTask(taskId);
+    return new ResponseEntity<>(updatedTask, HttpStatus.OK);
   }
 
   @PreAuthorize("hasRole('USER')")
   @RequestMapping(value = "/{taskId}/stop", method = RequestMethod.POST)
   @ApiOperation(value = "Stop specified task")
-  public ResponseEntity<String> stopTask(@PathVariable Long taskId) {
-    taskSchedulerService.stopTask(taskId);
-    return new ResponseEntity<>("Stopped", HttpStatus.OK);
+  public ResponseEntity<Task> stopTask(@PathVariable Long taskId) {
+    final Task updatedTask = taskSchedulerService.stopTask(taskId);
+    return new ResponseEntity<>(updatedTask, HttpStatus.OK);
   }
 }
