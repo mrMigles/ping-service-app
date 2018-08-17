@@ -55,26 +55,26 @@ public class TaskController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @RequestMapping(value = "/{taskName}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/{taskId}", method = RequestMethod.DELETE)
   @ApiOperation(value = "Remove specified task")
-  public ResponseEntity<String> removeTask(@PathVariable String taskName) {
-    taskSchedulerService.removeTask(taskName);
+  public ResponseEntity<String> removeTask(@PathVariable Long taskId) {
+    taskSchedulerService.removeTask(taskId);
     return new ResponseEntity<>("Removed", HttpStatus.OK);
   }
 
   @PreAuthorize("hasRole('USER')")
-  @RequestMapping(value = "/{taskName}/start", method = RequestMethod.POST)
+  @RequestMapping(value = "/{taskId}/start", method = RequestMethod.POST)
   @ApiOperation(value = "Run specified task")
-  public ResponseEntity<String> startTask(@PathVariable String taskName) {
-    taskSchedulerService.startTask(taskName);
+  public ResponseEntity<String> startTask(@PathVariable Long taskId) {
+    taskSchedulerService.startTask(taskId);
     return new ResponseEntity<>("Started", HttpStatus.OK);
   }
 
   @PreAuthorize("hasRole('USER')")
-  @RequestMapping(value = "/{taskName}/stop", method = RequestMethod.POST)
+  @RequestMapping(value = "/{taskId}/stop", method = RequestMethod.POST)
   @ApiOperation(value = "Stop specified task")
-  public ResponseEntity<String> stopTask(@PathVariable String taskName) {
-    taskSchedulerService.stopTask(taskName);
+  public ResponseEntity<String> stopTask(@PathVariable Long taskId) {
+    taskSchedulerService.stopTask(taskId);
     return new ResponseEntity<>("Stopped", HttpStatus.OK);
   }
 }

@@ -1,11 +1,9 @@
 package ru.holyway.pingservice.scheduler;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.scheduling.TaskScheduler;
@@ -24,7 +22,7 @@ public class TaskSchedulerService {
 
   private final TaskRunService taskRunService;
 
-  private final Set<TaskInfo> scheduledTasks = new HashSet<>();
+  private final HashMap<Long, TaskInfo> scheduledTasks = new HashMap<>();
 
   public TaskSchedulerService(TaskScheduler taskScheduler,
       TasksRepository tasksRepository,
@@ -40,7 +38,8 @@ public class TaskSchedulerService {
   }
 
   public List<Task> getTasks() {
-    List<Task> tasks = scheduledTasks.stream().map(TaskInfo::getTask).collect(Collectors.toList());
+    List<Task> tasks = scheduledTasks.values().stream().map(TaskInfo::getTask)
+        .collect(Collectors.toList());
     return tasks.stream().filter(this::checkAccess).collect(Collectors.toList());
   }
 
@@ -51,7 +50,7 @@ public class TaskSchedulerService {
 
   private Task addTask(final Task task, final boolean isNew) {
     final UserInfo userInfo = CurrentUser.getCurrentUser();
-    if (userInfo != null) {
+    if (userInfo != null && !isAdmin(userInfo)) {
       task.setUser(userInfo);
     }
     if (isNew && getTasks().contains(task)) {
@@ -69,18 +68,12 @@ public class TaskSchedulerService {
       scheduledFuture = taskScheduler
           .schedule(new TaskRunContainer(task, taskRunService), new CronTrigger(task.getCron()));
     }
-    scheduledTasks.add(new TaskInfo(task, scheduledFuture));
+    scheduledTasks.put(task.getId(), new TaskInfo(task, scheduledFuture));
   }
 
   public Task updateTask(final Task task) {
-    final UserInfo userInfo = CurrentUser.getCurrentUser();
-    if (userInfo != null) {
-      task.setUser(userInfo);
-    }
-    final TaskInfo taskInfo = scheduledTasks.stream()
-        .filter(taskInfo1 -> taskInfo1.getTask().equals(task)).findFirst().orElse(null);
-    if (taskInfo != null) {
-      task.setId(taskInfo.getTask().getId());
+    final TaskInfo taskInfo = scheduledTasks.get(task.getId());
+    if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final ScheduledFuture scheduledFuture = taskInfo.getScheduledFuture();
       if (scheduledFuture != null) {
         scheduledFuture.cancel(false);
@@ -91,8 +84,8 @@ public class TaskSchedulerService {
     }
   }
 
-  public Task startTask(final String name) {
-    final TaskInfo taskInfo = getTaskInfo(name);
+  public Task startTask(final Long id) {
+    final TaskInfo taskInfo = scheduledTasks.get(id);
 
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final Task task = taskInfo.getTask();
@@ -103,10 +96,10 @@ public class TaskSchedulerService {
     }
   }
 
-  public Task stopTask(final String name) {
-    final TaskInfo taskInfo = getTaskInfo(name);
+  public Task stopTask(final Long id) {
+    final TaskInfo taskInfo = scheduledTasks.get(id);
 
-    if (taskInfo != null) {
+    if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final Task task = taskInfo.getTask();
       task.setIsActive(false);
       return updateTask(task);
@@ -115,8 +108,8 @@ public class TaskSchedulerService {
     }
   }
 
-  public void removeTask(final String name) {
-    final TaskInfo taskInfo = getTaskInfo(name);
+  public void removeTask(final Long id) {
+    final TaskInfo taskInfo = scheduledTasks.get(id);
 
     if (taskInfo != null && checkAccess(taskInfo.getTask())) {
       final ScheduledFuture scheduledFuture = taskInfo.getScheduledFuture();
@@ -124,7 +117,7 @@ public class TaskSchedulerService {
         scheduledFuture.cancel(false);
       }
       tasksRepository.delete(taskInfo.getTask());
-      scheduledTasks.remove(taskInfo);
+      scheduledTasks.remove(id);
     } else {
       throw new TaskScheduleException(Status.NOT_FOUND);
     }
@@ -145,18 +138,7 @@ public class TaskSchedulerService {
    * LOLOLOOLOLOLOLOLLOLOLOLOLOLOLOLOL
    */
   private boolean isAdmin(UserInfo user) {
-    if (user.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
-      return true;
-    }
-    return false;
-  }
-
-  @Nullable
-  private TaskInfo getTaskInfo(String name) {
-    final UserInfo userInfo = CurrentUser.getCurrentUser();
-    return scheduledTasks.stream().filter(
-        taskInfo1 -> taskInfo1.getTask().getName().equals(name) && taskInfo1.getTask().getUser()
-            .equals(userInfo)).findFirst().orElse(null);
+    return user.getRole().equalsIgnoreCase("ROLE_ADMIN");
   }
 
 }

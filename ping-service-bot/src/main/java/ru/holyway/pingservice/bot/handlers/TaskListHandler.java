@@ -55,19 +55,19 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
     if (StringUtils.startsWithIgnoreCase(callback, "task:")) {
       String[] req = callback.split(":");
       if (req[1].equalsIgnoreCase("start")) {
-        Task task = taskSchedulerService.startTask(req[2]);
+        Task task = taskSchedulerService.startTask(Long.valueOf(req[2]));
         updateTaskInfo(sender, callbackQuery.getMessage().getMessageId(),
             callbackQuery.getMessage().getChatId(), task);
         sender.execute(new AnswerCallbackQuery().setCallbackQueryId(callbackQuery.getId())
             .setText(messageProvider.getMessage(LocalizedMessage.DONE)));
       } else if (req[1].equalsIgnoreCase("stop")) {
-        Task task = taskSchedulerService.stopTask(req[2]);
+        Task task = taskSchedulerService.stopTask(Long.valueOf(req[2]));
         sender.execute(new AnswerCallbackQuery().setCallbackQueryId(callbackQuery.getId())
             .setText(messageProvider.getMessage(LocalizedMessage.DONE)));
         updateTaskInfo(sender, callbackQuery.getMessage().getMessageId(),
             callbackQuery.getMessage().getChatId(), task);
       } else if (req[1].equalsIgnoreCase("remove")) {
-        taskSchedulerService.removeTask(req[2]);
+        taskSchedulerService.removeTask(Long.valueOf(req[2]));
         sender.execute(new DeleteMessage().setChatId(callbackQuery.getMessage().getChatId())
             .setMessageId(callbackQuery.getMessage().getMessageId()));
         sender.execute(new AnswerCallbackQuery().setCallbackQueryId(callbackQuery.getId())
@@ -185,14 +185,14 @@ public class TaskListHandler extends AbstractHandler implements CallbackHandler,
     InlineKeyboardButton submitButton = new InlineKeyboardButton("ChangeState");
     if (task.getIsActive()) {
       submitButton.setText(messageProvider.getMessage(LocalizedMessage.STOP));
-      submitButton.setCallbackData("task:stop:" + task.getName());
+      submitButton.setCallbackData("task:stop:" + task.getId());
     } else {
       submitButton.setText(messageProvider.getMessage(LocalizedMessage.START));
-      submitButton.setCallbackData("task:start:" + task.getName());
+      submitButton.setCallbackData("task:start:" + task.getId());
     }
     buttons.add(submitButton);
     InlineKeyboardButton cancelButton = new InlineKeyboardButton("Remove");
-    cancelButton.setCallbackData("task:remove:" + task.getName());
+    cancelButton.setCallbackData("task:remove:" + task.getId());
     cancelButton.setText(messageProvider.getMessage(LocalizedMessage.REMOVE));
     buttons.add(cancelButton);
     buttonList.add(buttons);

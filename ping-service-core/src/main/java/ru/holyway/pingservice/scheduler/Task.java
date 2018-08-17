@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -26,6 +27,7 @@ public class Task implements Serializable {
 
   @Id
   @GeneratedValue
+  @ApiModelProperty(accessMode = AccessMode.READ_ONLY, hidden = true)
   private Long id;
 
   @JsonProperty(required = true)
