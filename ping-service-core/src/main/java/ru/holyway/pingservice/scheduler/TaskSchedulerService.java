@@ -43,6 +43,14 @@ public class TaskSchedulerService {
     return tasks.stream().filter(this::checkAccess).collect(Collectors.toList());
   }
 
+  public Task getTask(final Long taskId) {
+    final TaskInfo taskInfo = scheduledTasks.get(taskId);
+    if (taskInfo != null && checkAccess(taskInfo.getTask())) {
+      return taskInfo.getTask();
+    }
+    return null;
+  }
+
   @Transactional
   public Task addTask(final Task task) {
     return addTask(task, true);

@@ -34,14 +34,16 @@ public enum LocalizedMessage {
 
   NAME_EXIST("Задача с таким имененм уже сущесвует", "Task with this name already exist"),
 
-  HI("Привет!\nЯ предоставляю упрощенный фуникцонал сервиса <a href=\"https://ping-services.herokuapp.com\">Ping Service</a>\n"
+  HI("Привет!\n"
+      + "Я предоставляю упрощенный фуникцонал сервиса <a href=\"https://ping-services.herokuapp.com\">Ping Service</a>\n"
       + "Я помогу твоему приложению быть всегда доступным и на дам усыпить его. \n"
       + "Я делаю это путем отправки периодических ping запросов на указанный Вами URL и указанной периодичностью.\n"
       + "Создай своё первое задание для меня  /new\n"
       + "Посмотреть список задач  /list\n"
       + "Помощь по командам  /help\n\n"
       + "Сменнить язык  /lang",
-      "Hi!\nI provide light functional of service <a href=\"https://ping-services.herokuapp.com\">Ping Service</a>\n"
+      "Hi!\n"
+          + "I provide light functional of service <a href=\"https://ping-services.herokuapp.com\">Ping Service</a>\n"
           + "I can help your app be available always and I won't let its sleep.\n"
           + "I do it via sending periodical ping requests on specified URL with specified frequency.\n"
           + "Create your first task for me  /new\n"
@@ -82,6 +84,8 @@ public enum LocalizedMessage {
 
   REMOVE("\uD83D\uDEAE Удалить", "\uD83D\uDEAE Remove"),
 
+  UPDATE("\uD83D\uDD01 Обновить список", "\uD83D\uDD01 Update list"),
+
   STOP("\u23F9 Остановить", "\u23F9 Stop"),
 
   START("▶️ Запустить", "▶️ Start"),
@@ -93,6 +97,8 @@ public enum LocalizedMessage {
   STOPPED("Остановлено", "Stopped"),
 
   THERE_NO_TASKS("Нет задач", "There no tasks"),
+
+  CLICK_TO_UPDATE("Нажмите, чтобы обновить список", "Click to update the list"),
 
   DONE("\uD83D\uDC4D Готово", "\uD83D\uDC4D Done"),
 
