@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {SchedulerService} from './scheduler.service';
-import {Task} from './task';
+import { Component, Input, OnInit } from '@angular/core';
+import { TaskSchedulerService } from './task-scheduler.service';
+import { Task } from './task';
 
 @Component({
   selector: 'app-scheduler',
@@ -12,7 +12,7 @@ export class SchedulerComponent implements OnInit {
 
   @Input() task: Task;
 
-  constructor(private schedulerService: SchedulerService) { }
+  constructor(private schedulerService: TaskSchedulerService) { }
 
   ngOnInit(): void {
     this.task = new Task();
@@ -28,8 +28,6 @@ export class SchedulerComponent implements OnInit {
     this.task.isActive = true;
     this.schedulerService.addTask(this.task)
       .subscribe(task => this.tasks.push(task));
-
-    this.tasks.push(this.task);
     this.task = new Task();
   }
 }

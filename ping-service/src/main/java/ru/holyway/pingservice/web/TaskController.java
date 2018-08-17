@@ -34,16 +34,22 @@ public class TaskController {
   @ApiOperation(value = "Create a new task")
   @RequestMapping(value = "/", method = RequestMethod.PUT)
   @BasicAuthDefinition(key = "basic")
-  public ResponseEntity<String> createTask(@RequestBody Task task) {
-    taskSchedulerService.addTask(task);
-    return new ResponseEntity<>("Created with name " + task.getName(), HttpStatus.CREATED);
+  public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    return new ResponseEntity<>(taskSchedulerService.addTask(task), HttpStatus.CREATED);
   }
 
   @PreAuthorize("hasRole('USER')")
   @RequestMapping(value = "/", method = RequestMethod.GET)
-  @ApiOperation(value = "Return all taks of this user")
+  @ApiOperation(value = "Return all tasks of this user")
   public ResponseEntity<List<Task>> getTasks() {
     return new ResponseEntity<>(taskSchedulerService.getTasks(), HttpStatus.OK);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @RequestMapping(value = "/{taskId}", method = RequestMethod.GET)
+  @ApiOperation(value = "Return task by id")
+  public ResponseEntity<Task> getTask(@PathVariable Long taskId) {
+    return ResponseEntity.ok(taskSchedulerService.getTask(taskId));
   }
 
   @PreAuthorize("hasRole('USER')")

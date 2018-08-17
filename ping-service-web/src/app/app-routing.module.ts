@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SchedulerComponent } from './scheduler/scheduler.component';
+import { TaskComponent } from "./scheduler/task/task.component";
 
 const routes: Routes = [
   { path: 'scheduler', component: SchedulerComponent },
+  { path: 'task/:id', component: TaskComponent },
   { path: '', redirectTo: '/scheduler',   pathMatch: 'full' }
 ];
 

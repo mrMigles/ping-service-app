@@ -8,11 +8,16 @@ const httpOptions = {
 };
 
 @Injectable()
-export class SchedulerService {
+export class TaskSchedulerService {
 
   private schedulerUrl = '/tasks/';
 
   constructor(private http: HttpClient) { }
+
+  getTask(id: number): Observable<Task> {
+    const url = `${this.schedulerUrl}/${id}`;
+    return this.http.get<Task>(url);
+  }
 
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(this.schedulerUrl);
@@ -20,5 +25,15 @@ export class SchedulerService {
 
   addTask(task: Task) {
     return this.http.put<Task>(this.schedulerUrl, task, httpOptions);
+  }
+
+  startTask(id: number) {
+    const url = `${this.schedulerUrl}/${id}/start`;
+    return this.http.post(url, {}, {responseType: 'text'});
+  }
+
+  stopTask(id: number) {
+    const url = `${this.schedulerUrl}/${id}/stop`;
+    return this.http.post(url, {}, {responseType: 'text'});
   }
 }

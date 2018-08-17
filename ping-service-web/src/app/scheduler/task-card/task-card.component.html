@@ -1,0 +1,15 @@
+<div class="card">
+  <div class="card-header">
+    <h5><a routerLink="/task/{{task.id}}" >{{task.name}}</a></h5>
+  </div>
+  <div class="card-body">
+    <p class="card-text">{{task.method}}: {{task.url}}</p>
+    <p class="card-text">CRON: {{task.cron}}</p>
+
+    <div class="row">
+      <div class="col-md-6 offset-md-5">
+        <slide-toggle [value]="task.isActive" (valueChange)="onChanged($event)"></slide-toggle>
+      </div>
+    </div>
+  </div>
+</div>

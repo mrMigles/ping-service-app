@@ -5,6 +5,19 @@
   Create task to ping your service!
 </div>
 <ngb-tabset>
+  <ngb-tab title="My Tasks">
+    <ng-template ngbTabContent>
+
+      <div class="row">
+        <div class="col-sm-3" style="margin-top: 20px;" *ngFor="let task of tasks">
+          <task-card [task]=task></task-card>
+        </div>
+      </div>
+
+    </ng-template>
+  </ngb-tab>
+
+
   <ngb-tab title="Schedule">
     <ng-template ngbTabContent>
 
@@ -41,30 +54,5 @@
 
     </ng-template>
   </ngb-tab>
-  <ngb-tab title="My Tasks">
-    <ng-template ngbTabContent>
 
-      <table class="table">
-        <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">URL</th>
-          <th scope="col">Method</th>
-          <th scope="col">CRON</th>
-          <th scope="col">Is Active</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let task of tasks">
-          <td>{{task.name}}</td>
-          <td>{{task.url}}</td>
-          <td>{{task.method}}</td>
-          <td>{{task.cron}}</td>
-          <td>{{task.isActive}}</td>
-        </tr>
-        </tbody>
-      </table>
-
-    </ng-template>
-  </ngb-tab>
 </ngb-tabset>
