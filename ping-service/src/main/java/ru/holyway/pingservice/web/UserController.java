@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.holyway.pingservice.usermanagement.UserInfo;
 import ru.holyway.pingservice.usermanagement.UserManagementService;
@@ -43,5 +44,13 @@ public class UserController {
   public ResponseEntity<String> removeUser(@PathVariable final String userName) {
     userRepository.removeUser(userName);
     return new ResponseEntity<>("User has been removed", HttpStatus.NO_CONTENT);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @RequestMapping(value = "/{userName}/changePassword", method = RequestMethod.DELETE)
+  public ResponseEntity<String> changePassword(@PathVariable final String userName,
+      @RequestParam(name = "password") final String password) {
+    userRepository.changePassword(userName, password);
+    return new ResponseEntity<>("Password has been changed", HttpStatus.OK);
   }
 }

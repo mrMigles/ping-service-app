@@ -43,7 +43,7 @@ public class TaskRunService {
     }
     final Long end = System.currentTimeMillis();
     final Integer status = httpStatus != null ? httpStatus.value() : -1;
-    writeToInflux(task, status);
+    writeToInflux(task, status, end - start);
 
     final TaskStatus taskStatus = new TaskStatus(end, end - start, status,
         status != -1, task);
@@ -51,13 +51,14 @@ public class TaskRunService {
     log.info("Request {}", url);
   }
 
-  private void writeToInflux(Task task, Integer status) {
+  private void writeToInflux(Task task, Integer status, Long duration) {
     if (influxDBTemplate != null) {
       try {
-        final Point p = Point.measurement(task.getName())
+        final Point p = Point.measurement("task_" + task.getId())
             .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
             .tag("tenant", "default")
             .addField("status", status)
+            .addField("duration", duration)
             .build();
         influxDBTemplate.write(p);
       } catch (Exception e) {

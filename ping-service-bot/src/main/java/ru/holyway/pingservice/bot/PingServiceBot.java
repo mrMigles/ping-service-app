@@ -94,9 +94,10 @@ public class PingServiceBot extends TelegramLongPollingBot {
     UserInfo currentUserInfo = userRepository.getUser(String.valueOf(user.getId()));
     if (currentUserInfo == null) {
       currentUserInfo = new UserInfo(String.valueOf(user.getId()),
-          "",
+          null,
           "ROLE_USER",
           user.getLanguageCode());
+      currentUserInfo.setInitial(true);
       userRepository.addUser(currentUserInfo);
     }
     CurrentUser.setCurrentUser(currentUserInfo);

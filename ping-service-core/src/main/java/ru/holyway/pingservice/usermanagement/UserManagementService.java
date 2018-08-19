@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
@@ -42,11 +41,7 @@ public class UserManagementService {
       throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
           "User with this name already exist");
     }
-    String pass = userInfo.getPassword();
-    if (StringUtils.isEmpty(pass)) {
-      pass = UUID.randomUUID().toString().replaceAll("-", "");
-    }
-    userInfo.setPassword(passwordEncoder.encode(pass));
+    userInfo.setPassword(null);
     userRepository.save(userInfo);
     userInfoMap.put(userInfo.getName(), userInfo);
     return userInfo;
@@ -72,4 +67,12 @@ public class UserManagementService {
     userRepository.delete(name);
   }
 
+  public void changePassword(final String userName, final String newPassword) {
+    final UserInfo userInfo = userInfoMap.get(userName);
+    if (userInfo != null & StringUtils.isNotEmpty(newPassword)) {
+      userInfo.setPassword(passwordEncoder.encode(newPassword));
+      userRepository.save(userInfo);
+      userInfoMap.put(userInfo.getName(), userInfo);
+    }
+  }
 }

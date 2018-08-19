@@ -1,5 +1,6 @@
 package ru.holyway.pingservice.usermanagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import javax.persistence.Entity;
@@ -28,10 +29,14 @@ public class UserInfo implements Serializable {
   @JsonProperty(required = true)
   private String name;
 
-  @JsonProperty(required = true)
+  @JsonIgnore
   private String password;
 
   private String role;
 
   private String lang;
+
+  private Boolean initial;
+
+  private String mail;
 }
